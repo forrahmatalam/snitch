@@ -1,7 +1,7 @@
 import { body, validationResult } from 'express-validator';
 
 
-const registerValidator = [
+export const registerValidator = [
     body("email")
         .trim()
         .exists().withMessage("Email is required")
