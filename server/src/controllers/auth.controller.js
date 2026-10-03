@@ -1,5 +1,6 @@
 import userModel from '../models/user.model.js';
 import bcrypt from "bcrypt";
+import {createAccessToken, createRefreshToken} from '../utils/auth.utils.js';
 
 
 export const register = async (req, res) => {
@@ -23,12 +24,20 @@ export const register = async (req, res) => {
     const user =await userModel.create({
         email,
         name, 
-        passwordHash:  bcrypt.hashSync(password, 10)
+        passwordHash: await bcrypt.hash(password, 12)
     });
+
+
+    const accessToken = createAccessToken({id: user._id, role: user.role});
+    const refreshToken = createRefreshToken({id: user._id, role: user.role});
+
     return res.status(201).json({
         message: "User created successfully",
-        user
+        user,
+        accessToken,
+        refreshToken
     });
+
 };
 
 export default { register };
