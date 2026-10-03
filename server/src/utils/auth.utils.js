@@ -10,3 +10,7 @@ export const createAccessToken = ({id,role}) => {
 export const createRefreshToken = ({id,role}) => {
     return jwt.sign({userId: id,role},config.REFRESH_TOKEN_SECRET,{expiresIn: "7d"});
 };
+
+export const readRefreshToken = (refreshToken) => {
+    return jwt.verify(refreshToken, config.REFRESH_TOKEN_SECRET);
+}

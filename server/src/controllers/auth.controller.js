@@ -1,6 +1,6 @@
 import userModel from '../models/user.model.js';
 import bcrypt from "bcrypt";
-import {createAccessToken, createRefreshToken} from '../utils/auth.utils.js';
+import {createAccessToken, createRefreshToken ,readRefreshToken} from '../utils/auth.utils.js';
 
 
 // Register route
@@ -110,3 +110,78 @@ return res.status(200).json({
 
 };
 
+
+//refresh token
+export const refreshToken = async (req, res) => {
+    const refreshToken = req.cookies.refreshToken;
+
+    //check if refresh token is avaailable or not
+    if(!refreshToken){
+        return res.status(400).json({
+            message: "Refresh token not found",
+        });
+    };
+
+    //Ab refresh token sahi hai ya nhi ye check krnah hai
+   
+    try{
+const decoded = readRefreshToken(refreshToken);
+const {userId, role} = decoded;
+
+const user = await userModel.findById(userId);
+
+if(!user || refreshToken !== user.refreshToken){
+    if(user){
+        await userModel.findOneAndUpdate(
+            { _id: user._id },
+            {
+                refreshToken: null
+            }
+        );
+    }
+
+    return res.status(400).json({
+        message: "Refresh token mismatch",
+    });
+}
+
+
+const newRefreshToken = createRefreshToken({
+    id: userId,
+    role
+});
+const accessToken = createAccessToken({
+    id: user._id,
+    role: user.role
+});
+
+await userModel.findOneAndUpdate(
+    { _id: user._id },
+    {
+        refreshToken: newRefreshToken
+    }
+);
+
+res.cookie('refreshToken', newRefreshToken,{
+httpOnly: true,
+});
+
+res.status(200).json({
+    message: "Refresh token updated successfully",
+    data:{
+        user:{
+            id: user._id,
+            email:user.email,
+            name:user.name
+        },
+         accessToken
+        
+    }
+});
+
+    } catch(err){
+console.log(err);
+    }
+
+
+}
