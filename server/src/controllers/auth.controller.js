@@ -31,12 +31,23 @@ export const register = async (req, res) => {
     const accessToken = createAccessToken({id: user._id, role: user.role});
     const refreshToken = createRefreshToken({id: user._id, role: user.role});
 
+res.cookie('refreshToken', refreshToken,{
+    httpOnly: true,
+});
+
     return res.status(201).json({
         message: "User created successfully",
-        user,
-        accessToken,
-        refreshToken
-    });
+        data:{
+            user:{
+                id: user._id,
+                email: user.email,
+                name: user.name,
+            },
+            accessToken,
+            }
+        });
+        
+   
 
 };
 
