@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import {createAccessToken, createRefreshToken} from '../utils/auth.utils.js';
 
 
+
 export const register = async (req, res) => {
     
     const { email, name, password } = req.body;
@@ -34,6 +35,13 @@ export const register = async (req, res) => {
 res.cookie('refreshToken', refreshToken,{
     httpOnly: true,
 });
+
+await userModel.findOneAndUpdate(
+    { _id: user._id },
+    {
+        refreshToken: refreshToken
+    }
+);
 
     return res.status(201).json({
         message: "User created successfully",
