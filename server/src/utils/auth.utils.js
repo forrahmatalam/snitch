@@ -7,6 +7,10 @@ export const createAccessToken = ({id,role}) => {
     return jwt.sign({userId: id,role},config.ACCESS_TOKEN_SECRET,{expiresIn: "1h"});
 };
 
+export const readAccessToken = (accessToken) => {
+    return jwt.verify(accessToken, config.ACCESS_TOKEN_SECRET);
+}
+
 export const createRefreshToken = ({id,role}) => {
     return jwt.sign({userId: id,role},config.REFRESH_TOKEN_SECRET,{expiresIn: "7d"});
 };
