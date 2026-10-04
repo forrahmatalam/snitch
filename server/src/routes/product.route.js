@@ -3,6 +3,6 @@ import { createProductValidator } from "../validators/product.validator";
 
 const router = Router();
 
-router.post("/product/create",createProductValidator);
+router.post("api/product",createProductValidator);
 
 export default router;
