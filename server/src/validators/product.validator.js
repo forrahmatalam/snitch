@@ -1,4 +1,4 @@
-import { body } from 'express-validator';
+import { body ,validationResult } from "express-validator";
 
 export const createProductValidator = [
 
@@ -7,7 +7,7 @@ body("title")
 .trim()
 .isString().withMessage("Title must be a string").bail()
 .isLength({ min: 2, max: 50 }).withMessage("Title must be between 2 and 50 characters").bail()
-.isAlpha("en-US",{ignore:" "}).withMessage("Title must be alphabetic characters").bail(),
+.isAlpha("en-US",{ignore:" -"}).withMessage("Title must be alphabetic characters").bail(),
 
 body("description")
 .exists().withMessage("Description is required").bail()
@@ -33,15 +33,28 @@ body("image")
 .isString().withMessage("Image must be a string").bail()
 .isLength({ min: 1, max: 5 }).withMessage("Image must be between 1 and 5 characters").bail(),
 
-body("size")
+body("sizes")
 .exists().withMessage("Size is required").bail()
 .trim()
 .isString().withMessage("Size must be a string").bail()
 .isLength({ min: 3, max: 3 }).withMessage("Size must be between 3 and 3 characters").bail(),
 
-body("stock")
-.exists().withMessage("Stock is required").bail()
+body("sizes.*.size")
+.exists().withMessage("size is required").bail()
 .trim()
-.isNumeric().withMessage("Stock must be a number").bail()           
+.isIn(["XS","S","M","L","XL","XXL"]).withMessage("size can be one of these XS,S,M,L,XL,XXL"),     
 
+body("sizes.*.stock")
+.exists().withMessage("stock is must be present in every entry").bail()
+.isInt({min:0}).withMessage("stock must be an integer value").bail(),  
+(req,res,next)=>{
+    const errors = validationResult(req);
+    if(!errors.isEmpty()){
+        return res.status(400).json({
+            message:"Invalid Request",
+            errors:errors.array()
+        });
+    }
+    next();
+}
 ];
