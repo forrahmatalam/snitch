@@ -2,7 +2,7 @@ import userModel from '../models/user.model.js';
 import bcrypt from "bcrypt";
 import {createAccessToken, createRefreshToken ,readRefreshToken} from '../utils/auth.utils.js';
 
-
+//jb data read krna hoto cookies ka use krte hai aur jb send krna hoto cookie ka use krte hai 
 // Register route
 export const register = async (req, res) => {
     
