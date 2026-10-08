@@ -20,13 +20,15 @@ export const createProduct = async (req, res) => {
     }
 
     const product = await productsModel.create({
-
-        ...req.body,
-
-        seller: req.user.userId,
-
-        images: fileUrls
-
+         title: req.body.title,
+         description: req.body.description,
+         price:{
+             amount: req.body.price.amount,
+             currency: req.body.price.currency
+         },
+         sizes: req.body.sizes,
+         images: fileUrls,
+         seller: req.user.user_Id
     });
 
     res.status(201).json({
@@ -35,4 +37,3 @@ export const createProduct = async (req, res) => {
     });
 
 };
-
