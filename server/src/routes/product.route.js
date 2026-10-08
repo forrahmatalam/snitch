@@ -17,7 +17,7 @@ router.post("/create", authenticate, /*inline middleware*/ (req, res, next) => {
         });
     }
     next();
-}, upload.array(/*ye image wala image nhi hai naam dena hota hai jo bhi form data me hai*/ "images", 5), (req, res, next) => {
+}, upload.array(/*ye image wala image nhi hai naam dena hota hai jo bhi form data me hai*/ "images", 5), /*ye ek aur middle ware*/(req, res, next) => {
     try {
         req.body.price = JSON.parse(req.body.price);
         req.body.sizes = JSON.parse(req.body.sizes);
