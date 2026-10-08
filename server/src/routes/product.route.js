@@ -6,8 +6,14 @@ import multer from "multer"
 
 const router = Router();
 
-//Multer
-const upload = multer({ storage: multer.memoryStorage() }); //form data read krne ke lie use hota hai 
+
+const upload = multer({ storage: multer.memoryStorage(),
+    limits: {
+        files: 5, //limit file upload to 5 files
+        fileSize: 1024 * 1024 * 10  //limit file size to 10 MB
+    },
+  
+ });   //Multer form data read krne ke lie use hota hai 
 
 
 router.post("/create", authenticate, /*inline middleware*/ (req, res, next) => {
