@@ -2,6 +2,12 @@ import userModel from '../models/user.model.js';
 import bcrypt from "bcrypt";
 import {createAccessToken, createRefreshToken ,readRefreshToken} from '../utils/auth.utils.js';
 
+const refreshCookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+};
+
 //jb data read krna hoto cookies ka use krte hai aur jb send krna hoto cookie ka use krte hai 
 // Register route
 export const register = async (req, res) => {
@@ -32,9 +38,7 @@ export const register = async (req, res) => {
     const accessToken = createAccessToken({id: user._id, role: user.role});
     const refreshToken = createRefreshToken({id: user._id, role: user.role});
 
-res.cookie('refreshToken', refreshToken,{
-    httpOnly: true,
-});
+res.cookie('refreshToken', refreshToken, refreshCookieOptions);
 
 await userModel.findOneAndUpdate(
     { _id: user._id },
@@ -91,9 +95,7 @@ await userModel.findOneAndUpdate(
     }
 );
 
-res.cookie('refreshToken', refreshToken,{
-    httpOnly: true,
-});
+res.cookie('refreshToken', refreshToken, refreshCookieOptions);
 
 return res.status(200).json({
     message: "Login successful",
@@ -161,9 +163,7 @@ await userModel.findOneAndUpdate(
     }
 );
 
-res.cookie('refreshToken', newRefreshToken,{
-httpOnly: true,
-});
+res.cookie('refreshToken', newRefreshToken, refreshCookieOptions);
 
 res.status(200).json({
     message: "Refresh token updated successfully",
