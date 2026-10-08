@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
-const productsSchema =new mongoose.Schema({
-    tite:{
+const productsSchema = new mongoose.Schema({
+    title:{
         type:String,
         required:true,
         minLength:2,
@@ -25,21 +25,21 @@ const productsSchema =new mongoose.Schema({
             default:"INR"
         }
     },
-    image:[{
-        type:String,
-    }],
-    validate:{
-        validator:image=>image.length <= 5,
-        message:"You can only upload 5 images"
-    },
-
-   size:{
-        {
-            type:String,
-            required:true,
-            enum:["XS","S","M","L","XL","XXL"],
-            default:"M"
+    images:{
+        type: [{ type: String }],
+        validate: {
+            validator: images => images.length <= 5,
+            message: "You can only upload 5 images"
         }
+    },
+    sizes:{
+        type: [{
+            _id: false,
+            size: { type: String, required: true, enum: ["XS", "S", "M", "L", "XL", "XXL"] },
+            stock: { type: Number, required: true, min: 0 }
+        }],
+        required: true,
+        validate: { validator: sizes => sizes.length > 0, message: "At least one size is required" }
     },
     stock:{
         type:Number,
@@ -50,7 +50,7 @@ const productsSchema =new mongoose.Schema({
         type:mongoose.Types.ObjectId,
         ref:"User"
     }
-})
+}, { timestamps: true });
 
 const productsModel = mongoose.model("Product",productsSchema);
 

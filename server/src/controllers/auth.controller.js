@@ -58,7 +58,6 @@ await userModel.findOneAndUpdate(
    
 
 };
-
 // Login route
 export const login = async (req, res) => {
     const { email, password } = req.body;
@@ -184,7 +183,8 @@ console.log(err);
     }
 
 
-}
+};
+
 
 //get rpofile using middleware
 export const getMe = async (req, res) => {
@@ -202,4 +202,4 @@ export const getMe = async (req, res) => {
          refreshToken: user.refreshToken
      }
  });
-}
+};

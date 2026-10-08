@@ -1,60 +1,32 @@
-import { body ,validationResult } from "express-validator";
+import { body, validationResult } from "express-validator";
 
 export const createProductValidator = [
-
-body("title")
-.exists().withMessage("Title is required").bail()
-.trim()
-.isString().withMessage("Title must be a string").bail()
-.isLength({ min: 2, max: 50 }).withMessage("Title must be between 2 and 50 characters").bail()
-.isAlpha("en-US",{ignore:" -"}).withMessage("Title must be alphabetic characters").bail(),
-
-body("description")
-.exists().withMessage("Description is required").bail()
-.trim()
-.isString().withMessage("Description must be a string").bail()
-.isLength({ min: 2, max: 500 }).withMessage("Description must be between 2 and 500 characters").bail(),
-
-body("price.amount")
-.exists().withMessage("Price is required").bail()
-.trim()
-.isFloat({min:0}).withMessage("Price must be a float number").bail()
-.isLength({ min: 1, max: 10 }).withMessage("Price must be between 1 and 10 characters").bail(),
-
-body("price.currency")
-.exists().withMessage("Currency is required").bail()
-.trim()
-.isString().withMessage("Currency must be a string").bail()
-.isIn(["INR","USD"]).withMessage("Currency must be INR or USD").bail(), 
-
-body("image")
-.exists().withMessage("Image is required").bail()
-.trim()
-.isString().withMessage("Image must be a string").bail()
-.isLength({ min: 1, max: 5 }).withMessage("Image must be between 1 and 5 characters").bail(),
-
-body("sizes")
-.exists().withMessage("Size is required").bail()
-.trim()
-.isString().withMessage("Size must be a string").bail()
-.isLength({ min: 3, max: 3 }).withMessage("Size must be between 3 and 3 characters").bail(),
-
-body("sizes.*.size")
-.exists().withMessage("size is required").bail()
-.trim()
-.isIn(["XS","S","M","L","XL","XXL"]).withMessage("size can be one of these XS,S,M,L,XL,XXL"),     
-
-body("sizes.*.stock")
-.exists().withMessage("stock is must be present in every entry").bail()
-.isInt({min:0}).withMessage("stock must be an integer value").bail(),  
-(req,res,next)=>{
-    const errors = validationResult(req);
-    if(!errors.isEmpty()){
-        return res.status(400).json({
-            message:"Invalid Request",
-            errors:errors.array()
-        });
+    body("title")
+        .isString().withMessage("Title must be a string").bail()
+        .trim().isLength({ min: 2, max: 50 }).withMessage("Title must be between 2 and 50 characters"),
+    body("description")
+        .isString().withMessage("Description must be a string").bail()
+        .trim().isLength({ min: 2, max: 500 }).withMessage("Description must be between 2 and 500 characters"),
+    body("price.amount")
+        .isFloat({ min: 0 }).withMessage("Price must be a non-negative number"),
+    body("price.currency")
+        .isIn(["INR", "USD"]).withMessage("Currency must be INR or USD"),
+    body("images")
+        .optional().isArray({ max: 5 }).withMessage("Images must be an array of at most 5 URLs"),
+    body("images.*")
+        .isString().withMessage("Each image must be a string").bail()
+        .isURL().withMessage("Each image must be a valid URL"),
+    body("sizes")
+        .isArray({ min: 1 }).withMessage("At least one size is required"),
+    body("sizes.*.size")
+        .isIn(["XS", "S", "M", "L", "XL", "XXL"]).withMessage("Size must be XS, S, M, L, XL, or XXL"),
+    body("sizes.*.stock")
+        .isInt({ min: 0 }).withMessage("Stock must be a non-negative integer"),
+    (req, res, next) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ message: "Invalid Request", errors: errors.array() });
+        }
+        next();
     }
-    next();
-}
 ];
