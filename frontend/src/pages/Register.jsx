@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../context/useAuth'
 import { Link } from '../components/Link'
 import AuthForm from '../components/AuthForm'
 import AuthPage from '../components/AuthPage'

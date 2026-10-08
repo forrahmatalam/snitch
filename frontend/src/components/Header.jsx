@@ -1,5 +1,5 @@
 import { Link } from './Link'
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../context/useAuth'
 
 const Header = () => {
   const { user, logout } = useAuth()

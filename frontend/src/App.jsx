@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import Header from './components/Header'
 import { Link } from './components/Link'
-import { useAuth } from './context/AuthContext'
+import { useAuth } from './context/useAuth'
 import Dashboard from './pages/Dashboard'
 import Login from './pages/Login'
 import Register from './pages/Register'

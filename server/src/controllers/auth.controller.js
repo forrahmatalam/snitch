@@ -179,7 +179,9 @@ res.status(200).json({
 });
 
     } catch(err){
-console.log(err);
+        return res.status(401).json({
+            message: "Invalid or expired refresh token",
+        });
     }
 
 
@@ -198,8 +200,7 @@ export const getMe = async (req, res) => {
              email: user.email,
              name: user.name,
          },
-         accessToken: createAccessToken({id: user._id, role: user.role}),
-         refreshToken: user.refreshToken
+         accessToken: createAccessToken({id: user._id, role: user.role})
      }
  });
 };
