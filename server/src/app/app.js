@@ -4,7 +4,7 @@ import productRoutes from '../routes/product.route.js';
 import cookieParser from 'cookie-parser';
 
 const app = express();
-app.use(express.json());
+app.use(express.json());//(middleware)iske bina req.body me data read nhi kr pa rhe hote hai iska use jb body me row data bhjna hota hai 
 app.use(cookieParser());
 
 app.use('/api/auth', authRoutes);

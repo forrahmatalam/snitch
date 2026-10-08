@@ -7,7 +7,7 @@ import multer from "multer"
 const router = Router();
 
 //Multer
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({ storage: multer.memoryStorage() }); //form data read krne ke lie use hota hai 
 
 
 router.post("/create", authenticate, /*inline middleware*/ (req, res, next) => {
@@ -17,16 +17,16 @@ router.post("/create", authenticate, /*inline middleware*/ (req, res, next) => {
         });
     }
     next();
-}, upload.array("images", 5), (req, res, next) => {
+}, upload.array(/*ye image wala image nhi hai naam dena hota hai jo bhi form data me hai*/ "images", 5), (req, res, next) => {
     try {
         req.body.price = JSON.parse(req.body.price);
         req.body.sizes = JSON.parse(req.body.sizes);
         next();
-        
+
     } catch {
         res.status(400).json({ message: "price aur sizes valid JSON mein bhejo" });
     }
-}, createProductValidator, createProduct);
+}, createProductValidator, createProduct );
 
 
 
