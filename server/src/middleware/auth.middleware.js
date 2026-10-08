@@ -12,6 +12,12 @@ export const authenticate =(req,res,next)=>{
 
     try{
         const decoded = readAccessToken(accessToken);
+        if (!decoded.userId) {
+            return res.status(401).json({
+                message: "Access token does not contain a user ID. Please log in again.",
+            });
+        }
+
         req.user = decoded;
 
         next(); 

@@ -41,14 +41,10 @@ const productsSchema = new mongoose.Schema({
         required: true,
         validate: { validator: sizes => sizes.length > 0, message: "At least one size is required" }
     },
-    stock:{
-        type:Number,
-        min:0,
-        default:0
-    },
     seller:{
         type:mongoose.Types.ObjectId,
-        ref:"User"
+        ref:"User",
+        required:true
     }
 }, { timestamps: true });
 

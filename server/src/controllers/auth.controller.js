@@ -85,8 +85,8 @@ export const login = async (req, res) => {
         });
     }
 
-    const accessToken = createAccessToken({userId: user._id, role: user.role});
-    const refreshToken = createRefreshToken({userId: user._id, role: user.role});
+    const accessToken = createAccessToken({id: user._id, role: user.role});
+    const refreshToken = createRefreshToken({id: user._id, role: user.role});
 
 await userModel.findOneAndUpdate(
     { _id: user._id },

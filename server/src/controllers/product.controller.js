@@ -28,7 +28,7 @@ export const createProduct = async (req, res) => {
          },
          sizes: req.body.sizes,
          images: fileUrls,
-         seller: req.user.user_Id
+         seller: req.user.userId
     });
 
     res.status(201).json({
