@@ -37,3 +37,13 @@ export const createProduct = async (req, res) => {
     });
 
 };
+
+
+//
+export const listAllProducts = async (req, res) => {
+    const products = await productsModel.find();
+    res.status(200).json({
+        message: "Products fetched successfully",
+        data:{products}
+    });
+};

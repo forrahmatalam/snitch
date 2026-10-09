@@ -1,7 +1,7 @@
-import { Router } from "express";
+    import { Router } from "express";
 import { createProductValidator } from "../validators/product.validator.js";
 import { authenticate } from "../middleware/auth.middleware.js";
-import { createProduct } from "../controllers/product.controller.js";
+import { createProduct ,listAllProducts} from "../controllers/product.controller.js";
 import multer from "multer"
 
 const router = Router();
@@ -35,6 +35,9 @@ router.post("/create", authenticate, /*inline middleware*/ (req, res, next) => {
 }, createProductValidator, createProduct );
 
 
+//get api
+
+router.get("/",authenticate,listAllProducts);
 
 
 export default router;
