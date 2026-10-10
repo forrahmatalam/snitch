@@ -36,7 +36,7 @@ const ProductForm = ({ onMessage, onError }) => {
         <label className="field">Stock<input required type="number" min="0" step="1" value={product.stock} onChange={(e) => setProduct({ ...product, stock: e.target.value })} /></label>
         <label className="field sm:col-span-2">Images (up to 5)<input name="images" type="file" accept="image/*" multiple className="file-input" /></label>
         <button disabled={busy} className="primary-button sm:col-span-2">{busy ? 'Saving…' : 'Create product'}</button>
-        <p className="sm:col-span-2 text-xs leading-5 text-stone-500">Backend receives images but does not save them to image storage yet.</p>
+        <p className="sm:col-span-2 text-xs leading-5 text-stone-500">Product images are uploaded to image storage when you create the product.</p>
       </form>
     </section>
   )

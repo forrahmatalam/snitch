@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useAuth } from '../context/useAuth'
 import ProductForm from '../components/ProductForm'
+import ProductCatalog from '../components/ProductCatalog'
 
 const Dashboard = () => {
   const { user, role } = useAuth()
@@ -24,6 +25,7 @@ const Dashboard = () => {
         </section>
       )}
     </div>
+    <ProductCatalog onMessage={setMessage} onError={setError} />
   </>
 }
 
