@@ -2,11 +2,13 @@ import { useState } from 'react'
 import { useAuth } from '../context/useAuth'
 import ProductForm from '../components/ProductForm'
 import ProductCatalog from '../components/ProductCatalog'
+import SellerProductList from '../components/SellerProductList'
 
 const Dashboard = () => {
   const { user, role } = useAuth()
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+  const [refreshProducts, setRefreshProducts] = useState(0)
 
   return <>
     {error && <div role="alert" className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</div>}
@@ -17,7 +19,7 @@ const Dashboard = () => {
         <h1 className="mt-3 text-3xl font-bold">Hi, {user.name}</h1><p className="mt-2 break-all text-stone-300">{user.email}</p>
         <div className="mt-8 border-t border-white/15 pt-5"><p className="text-sm text-stone-400">Account type</p><p className="mt-1 font-medium capitalize">{role}</p></div>
       </section>
-      {role === 'seller' ? <ProductForm onMessage={setMessage} onError={setError} /> : (
+      {role === 'seller' ? <ProductForm onMessage={setMessage} onError={setError} onProductCreated={() => setRefreshProducts((key) => key + 1)} /> : (
         <section className="flex min-h-64 flex-col justify-center rounded-2xl border border-stone-200 bg-white p-8 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-orange-700">Seller tools</p>
           <h2 className="mt-2 text-2xl font-bold">Product creation is for sellers</h2>
@@ -25,6 +27,7 @@ const Dashboard = () => {
         </section>
       )}
     </div>
+    {role === 'seller' && <SellerProductList sellerId={user.id} refreshKey={refreshProducts} onMessage={setMessage} onError={setError} />}
     <ProductCatalog onMessage={setMessage} onError={setError} />
   </>
 }

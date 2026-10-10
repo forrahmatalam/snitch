@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { apiRequest } from '../services/api'
+import { getProducts } from '../services/product.service'
 
 const ProductCatalog = ({ onMessage, onError }) => {
   const [products, setProducts] = useState([])
@@ -10,10 +11,10 @@ const ProductCatalog = ({ onMessage, onError }) => {
 
   useEffect(() => {
     let active = true
-    apiRequest('/product').then((result) => {
+    getProducts().then((products) => {
       if (!active) return
-      setProducts(result.data.products)
-      setSizes(Object.fromEntries(result.data.products.map((product) => [product._id, product.sizes[0]?.size || ''])))
+      setProducts(products)
+      setSizes(Object.fromEntries(products.map((product) => [product._id, product.sizes[0]?.size || ''])))
     }).catch((error) => {
       if (active) onError(error.details || error.message)
     }).finally(() => {
@@ -26,9 +27,9 @@ const ProductCatalog = ({ onMessage, onError }) => {
     setLoading(true)
     onError('')
     try {
-      const result = await apiRequest('/product')
-      setProducts(result.data.products)
-      setSizes(Object.fromEntries(result.data.products.map((product) => [product._id, product.sizes[0]?.size || ''])))
+      const products = await getProducts()
+      setProducts(products)
+      setSizes(Object.fromEntries(products.map((product) => [product._id, product.sizes[0]?.size || ''])))
     } catch (error) {
       onError(error.details || error.message)
     } finally {

@@ -38,8 +38,17 @@ export const createProduct = async (req, res) => {
 
 };
 
-
 //
+export const listAllSellerProducts = async (req, res) => {
+    const products = await productsModel.find();
+    res.status(200).json({
+        message: "All products fetched successfully",
+        data:{products}
+    });
+}
+
+
+//for show only listed  product by seller
 export const listAllProducts = async (req, res) => {
     const products = await productsModel.find({
         published:true
@@ -75,7 +84,7 @@ export const unlistProduct = async (req, res) => {
 };
 
 
-
+//use for list product by seller
 export const listProduct = async (req, res) => {
  const {id} =req.params;
 

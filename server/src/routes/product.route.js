@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { createProductValidator ,unlistProductValidator,listProductValidator } from "../validators/product.validator.js";
 import { authenticate ,isSeller  } from "../middleware/auth.middleware.js";
-import { createProduct ,listAllProducts ,unlistProduct,listProduct} from "../controllers/product.controller.js";
+import { createProduct ,listAllProducts ,unlistProduct,listProduct,listAllSellerProducts} from "../controllers/product.controller.js";
 import multer from "multer"
 
 const router = Router();
@@ -36,5 +36,8 @@ router.patch("/unlist/:id",authenticate,isSeller,unlistProductValidator,unlistPr
 
 //list product
 router.patch("/list/:id",authenticate,isSeller,listProductValidator,listProduct);
+
+//
+router.get("/seller/:id",authenticate,isSeller,listAllSellerProducts);
 
 export default router;

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { apiRequest } from '../services/api'
 
-const ProductForm = ({ onMessage, onError }) => {
+const ProductForm = ({ onMessage, onError, onProductCreated }) => {
   const [busy, setBusy] = useState(false)
   const [product, setProduct] = useState({ title: '', description: '', amount: '', currency: 'INR', size: 'M', stock: '0' })
 
@@ -17,6 +17,7 @@ const ProductForm = ({ onMessage, onError }) => {
     try {
       const result = await apiRequest('/product/create', { method: 'POST', body: form })
       onMessage(result.message)
+      onProductCreated()
       setProduct({ title: '', description: '', amount: '', currency: 'INR', size: 'M', stock: '0' })
       formElement.reset()
     } catch (error) { onError(error.details || error.message) }
