@@ -8,4 +8,12 @@ const config = {
     IMAGEKIT_PRIVATE_KEY: process.env.IMAGEKIT_PRIVATE_KEY,
 }
 
+
+
+
+
+
+
 export default config;
+
+

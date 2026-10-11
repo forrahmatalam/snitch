@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { registerValidator ,loginValidator} from '../validators/auth.validator.js';
 import { register ,login, refreshToken, getMe} from '../controllers/auth.controller.js';
 import { authenticate } from '../middleware/auth.middleware.js';
+import { googleLogin } from '../controllers/googleAuth.controller.js';
 
 
 
@@ -14,6 +15,7 @@ router.post('/register', registerValidator, register);
 
   // Login route
 router.post('/login', loginValidator, login);
+router.post('/google', googleLogin);
 
 // Refresh token route
 router.post('/refresh', refreshToken);

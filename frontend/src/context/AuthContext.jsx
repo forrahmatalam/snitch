@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { apiRequest, getTokenRole } from '../services/api'
+import { exchangeGoogleCode } from '../services/googleAuth.service'
 import { AuthContext } from './authContext'
 
 export const AuthProvider = ({ children }) => {
@@ -15,6 +16,12 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (details) => {
     const result = await apiRequest('/auth/login', { method: 'POST', body: JSON.stringify(details) })
+    saveSession(result.data.user, result.data.accessToken)
+    return result.message
+  }
+
+  const loginWithGoogle = async (code) => {
+    const result = await exchangeGoogleCode(code)
     saveSession(result.data.user, result.data.accessToken)
     return result.message
   }
@@ -49,5 +56,5 @@ export const AuthProvider = ({ children }) => {
     loadUser()
   }, [])
 
-  return <AuthContext.Provider value={{ user, role, loading, login, register, logout }}>{children}</AuthContext.Provider>
+  return <AuthContext.Provider value={{ user, role, loading, login, loginWithGoogle, register, logout }}>{children}</AuthContext.Provider>
 }
