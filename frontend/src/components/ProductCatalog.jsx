@@ -1,6 +1,16 @@
 import { useEffect, useState } from 'react'
 import { apiRequest } from '../services/api'
 import { getProducts } from '../services/product.service'
+import { createPaymentOrder, getPaymentKey, verifyPayment } from '../services/payment.service'
+
+const loadRazorpay = () => new Promise((resolve) => {
+  if (window.Razorpay) return resolve(true)
+  const script = document.createElement('script')
+  script.src = 'https://checkout.razorpay.com/v1/checkout.js'
+  script.onload = () => resolve(true)
+  script.onerror = () => resolve(false)
+  document.body.appendChild(script)
+})
 
 const ProductCatalog = ({ onMessage, onError }) => {
   const [products, setProducts] = useState([])
@@ -8,6 +18,7 @@ const ProductCatalog = ({ onMessage, onError }) => {
   const [quantities, setQuantities] = useState({})
   const [loading, setLoading] = useState(true)
   const [busyProduct, setBusyProduct] = useState('')
+  const [buyingProduct, setBuyingProduct] = useState('')
 
   useEffect(() => {
     let active = true
@@ -58,6 +69,59 @@ const ProductCatalog = ({ onMessage, onError }) => {
     }
   }
 
+  const buyNow = async (product) => {
+    const selectedSize = product.sizes.find((item) => item.size === sizes[product._id])
+    const quantity = Number(quantities[product._id] || 1)
+    const total = Number(product.price.amount) * quantity
+    if (!selectedSize || quantity < 1 || quantity > selectedSize.stock) {
+      onError('Selected size ke liye requested quantity stock mein available nahi hai.')
+      return
+    }
+    if (product.price.currency !== 'INR') {
+      onError('Online checkout abhi sirf INR products ke liye enabled hai.')
+      return
+    }
+
+    setBuyingProduct(product._id)
+    onError('')
+    onMessage('')
+    try {
+      if (!await loadRazorpay()) throw new Error('Razorpay Checkout load nahi hua. Internet connection check karein.')
+      const amount = Math.round(total * 100)
+      const [keyData, orderData] = await Promise.all([
+        getPaymentKey(),
+        createPaymentOrder(amount),
+      ])
+      if (!keyData.key || !orderData.order_id) throw new Error('Server se payment setup details nahi mile.')
+
+      const checkout = new window.Razorpay({
+        key: keyData.key,
+        amount,
+        currency: 'INR',
+        name: 'Snitch',
+        description: `${product.title} · Size ${selectedSize.size} · Qty ${quantity}`,
+        order_id: orderData.order_id,
+        handler: async (response) => {
+          try {
+            const result = await verifyPayment(response)
+            if (!result.success) throw new Error(result.message || 'Payment verify nahi hua.')
+            onMessage(`Payment verified for ${product.title}.`)
+          } catch (error) {
+            onError(error.message || 'Payment verification fail hui.')
+          } finally {
+            setBuyingProduct('')
+          }
+        },
+        modal: { ondismiss: () => setBuyingProduct('') },
+        theme: { color: '#c2410c' },
+      })
+      checkout.open()
+    } catch (error) {
+      onError(error.message || 'Payment start nahi ho paya.')
+      setBuyingProduct('')
+    }
+  }
+
   return (
     <section className="mt-8">
       <div className="mb-5 flex items-end justify-between gap-4">
@@ -80,7 +144,10 @@ const ProductCatalog = ({ onMessage, onError }) => {
                   <label className="field">Size<select value={sizes[product._id] || ''} onChange={(event) => setSizes({ ...sizes, [product._id]: event.target.value })}>{product.sizes.map((item) => <option key={item.size} value={item.size}>{item.size} · {item.stock} left</option>)}</select></label>
                   <label className="field">Quantity<input type="number" min="1" max={selectedSize?.stock || 1} value={quantities[product._id] || 1} onChange={(event) => setQuantities({ ...quantities, [product._id]: event.target.value })} /></label>
                 </div>
-                <button disabled={busyProduct === product._id || !selectedSize?.stock} onClick={() => addToCart(product)} className="primary-button mt-4 w-full">{busyProduct === product._id ? 'Adding…' : selectedSize?.stock ? 'Add to cart' : 'Out of stock'}</button>
+                <div className="mt-4 grid grid-cols-2 gap-3">
+                  <button disabled={busyProduct === product._id || buyingProduct === product._id || !selectedSize?.stock} onClick={() => addToCart(product)} className="rounded-[.65rem] border border-stone-300 bg-white px-3 py-3 text-sm font-semibold hover:bg-stone-100">{busyProduct === product._id ? 'Adding…' : 'Add to cart'}</button>
+                  <button disabled={busyProduct === product._id || buyingProduct === product._id || !selectedSize?.stock || product.price.currency !== 'INR'} onClick={() => buyNow(product)} className="primary-button px-3 py-3 text-sm">{buyingProduct === product._id ? 'Opening checkout…' : 'Buy now'}</button>
+                </div>
               </div>
             </article>
           })}

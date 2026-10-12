@@ -1,7 +1,7 @@
 import axios from 'axios'
 import jwt from 'jsonwebtoken'
-import { oauth2Client } from '../utils/googleConfig.js'
-import User from '../models/userModel.js'
+import { oauth2Client } from '../config/googleConfig.js'
+import User from '../models/user.model.js'
 import { createRefreshToken } from '../utils/auth.utils.js'
 
 

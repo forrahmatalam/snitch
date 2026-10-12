@@ -5,6 +5,7 @@ import { useAuth } from './context/useAuth'
 import Dashboard from './pages/Dashboard'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import PaymentPage from './pages/payment/PaymentPage'
 
 const App = () => {
   const { user, loading } = useAuth()
@@ -18,6 +19,7 @@ const App = () => {
 
   let page
   if (loading) page = <p className="text-center text-sm text-stone-500">Loading account…</p>
+  else if (path === '/payment') page = <PaymentPage />
   else if (user) page = <Dashboard />
   else if (path === '/register') page = <Register />
   else if (path === '/login') page = <Login />

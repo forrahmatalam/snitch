@@ -17,15 +17,18 @@
   },
   "dependencies": {
     "@imagekit/nodejs": "^7.12.1",
+    "axios": "^1.20.0",
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
+    "crypto": "^1.0.1",
     "dotenv": "^18.0.5",
     "express": "^5.2.1",
     "express-validator": "^7.3.2",
     "googleapis": "^185.0.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.10.3",
-    "multer": "^2.4.0"
+    "multer": "^2.4.0",
+    "razorpay": "^2.9.8"
   }
 }
