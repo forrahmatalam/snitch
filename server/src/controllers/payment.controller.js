@@ -13,7 +13,7 @@ export const processPayment = async (req, res) => {
         });
     }
 
-    if (!config.RAZOR_KEY_ID || !config.RAZOR_SECRET_KEY) {
+    if (!instance || !config.RAZOR_KEY_ID || !config.RAZOR_SECRET_KEY) {
         return res.status(503).json({
             message: "Razorpay test keys are missing. Set RAZOR_KEY_ID and RAZOR_SECRET_KEY in server/.env.",
             success: false
@@ -47,9 +47,9 @@ export const processPayment = async (req, res) => {
 
 // Return the public Razorpay key to the checkout page.
 export const getKey = async (req, res) => {
-    if (!config.RAZOR_KEY_ID) {
+    if (!instance || !config.RAZOR_KEY_ID || !config.RAZOR_SECRET_KEY) {
         return res.status(503).json({
-            message: "Razorpay test key is missing. Set RAZOR_KEY_ID in server/.env.",
+            message: "Razorpay keys are missing. Set RAZOR_KEY_ID and RAZOR_SECRET_KEY in the server environment.",
             success: false
         });
     }

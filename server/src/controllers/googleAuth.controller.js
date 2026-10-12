@@ -1,8 +1,6 @@
-import axios from 'axios'
-import jwt from 'jsonwebtoken'
-import { oauth2Client } from '../config/googleConfig.js'
+import { googleClientId, oauth2Client } from '../config/googleConfig.js'
 import User from '../models/user.model.js'
-import { createRefreshToken } from '../utils/auth.utils.js'
+import { createAccessToken, createRefreshToken } from '../utils/auth.utils.js'
 
 
 // REFRESH TOKEN COOKIE OPTIONS
@@ -14,7 +12,6 @@ const refreshCookieOptions = {
 
 
 export const googleLogin = async (req, res) => {
-
     const code = req.query.code ?? req.body?.code
 
     if (!code) {
@@ -23,9 +20,13 @@ export const googleLogin = async (req, res) => {
         })
     }
 
-    try {
+    if (!googleClientId || !(process.env.GOOGLE_CLIENT_SECRET || process.env.client_secret)) {
+        return res.status(503).json({
+            message: 'Google Auth is not configured. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in server/.env.'
+        })
+    }
 
-        // GOOGLE SE TOKENS LENA
+    try {
         const googleRes = await oauth2Client.getToken(code)
 
         if (!googleRes.tokens.id_token) {
@@ -35,16 +36,14 @@ export const googleLogin = async (req, res) => {
         }
 
 
-        // GOOGLE ID TOKEN VERIFY KARNA
         const ticket = await oauth2Client.verifyIdToken({
             idToken: googleRes.tokens.id_token,
-            audience: process.env.GOOGLE_CLIENT_ID
+            audience: googleClientId
         })
 
         const profile = ticket.getPayload()
 
 
-        // GOOGLE USER KI INFORMATION LENA
         if (!profile?.sub || !profile.email || !profile.email_verified) {
             return res.status(401).json({
                 message: 'Google account email could not be verified'
@@ -56,7 +55,6 @@ export const googleLogin = async (req, res) => {
         const normalizedEmail = email.toLowerCase()
 
 
-        // DATABASE MEIN EMAIL KE BASIS PAR USER SEARCH KARNA
         let user = await User.findOne({
             email: normalizedEmail
         })
@@ -64,7 +62,6 @@ export const googleLogin = async (req, res) => {
 
         if (!user) {
 
-            // AGAR USER NAHI HAI TO NAYA USER CREATE KARNA
             user = await User.create({
                 name: name || normalizedEmail.split('@')[0],
                 email: normalizedEmail,
@@ -74,7 +71,6 @@ export const googleLogin = async (req, res) => {
 
         } else if (!user.googleId) {
 
-            // VERIFIED EMAIL KE BAAD EXISTING ACCOUNT LINK KARNA
             user.googleId = sub
 
             if (picture) {
@@ -85,55 +81,29 @@ export const googleLogin = async (req, res) => {
 
         } else if (user.googleId !== sub) {
 
-            // AGAR GOOGLE ACCOUNT MATCH NAHI KARTA
             return res.status(409).json({
                 message: 'This email is linked to a different Google account'
             })
 
         } else if (picture && user.image !== picture) {
 
-            // GOOGLE PROFILE IMAGE UPDATE KARNA
             user.image = picture
             await user.save()
         }
 
 
-        // ACCESS TOKEN SIGN KARNA
-        const accessToken = jwt.sign(
-
-            // TOKEN KE ANDAR USER KI INFORMATION
-            {
-                id: user._id,
-                role: user.role
-            },
-
-            // SECRET KEY
-            process.env.JWT_SECRET,
-
-            // TOKEN KI EXPIRY
-            {
-                expiresIn: process.env.JWT_TIMEOUT || '1h'
-            }
-        )
-
-
-        // REFRESH TOKEN GENERATE KARNA
+        const accessToken = createAccessToken({ id: user._id, role: user.role })
         const refreshToken = createRefreshToken({
             id: user._id,
             role: user.role
         })
 
 
-        // DATABASE MEIN REFRESH TOKEN SAVE KARNA
         user.refreshToken = refreshToken
         await user.save()
 
-
-        // REFRESH TOKEN HTTP-ONLY COOKIE MEIN SAVE KARNA
         res.cookie('refreshToken', refreshToken, refreshCookieOptions)
 
-
-        // FRONTEND KO RESPONSE BHEJNA
         return res.status(200).json({
             message: 'Google login successful',
 
@@ -149,11 +119,11 @@ export const googleLogin = async (req, res) => {
 
 
     } catch (error) {
-
-        console.error('Google login failed:', error.message)
+        const details = error.response?.data?.error_description || error.message
+        console.error('Google login failed:', details)
 
         return res.status(401).json({
-            message: 'Google login could not be verified'
+            message: `Google login failed: ${details || 'authorization code could not be verified'}`
         })
     }
 }
